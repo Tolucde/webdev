@@ -1,11 +1,15 @@
 const Cart = require('../models/Cart')
 
 exports.addToCart = async(req, res) => {
-    const { userId, itemId, qty } = req.body
+    const { userId, itemId, qty, price, name, photo } = req.body
 
     try {
         // Check if the item is already in the cart
-        const existingItem = await Cart.findOne({ userId, itemId, ordered: false })
+        const existingItem = await Cart.findOne({
+            userId,
+            itemId,
+            ordered: false,
+        })
 
         if (existingItem) {
             // Item is already in the cart
@@ -17,7 +21,9 @@ exports.addToCart = async(req, res) => {
             userId,
             itemId,
             qty,
-            // ordered is false by default as defined in the model
+            price,
+            name,
+            photo,
         })
 
         // Save the cart item to the database
@@ -26,7 +32,6 @@ exports.addToCart = async(req, res) => {
         // Respond with the cart item ID and success
         res.status(201).json({ cartId: result._id, message: 'Item added to cart' })
     } catch (error) {
-        // Handle errors, like missing fields or invalid IDs
         res.status(500).json({ message: 'Error adding to cart' })
     }
 }
@@ -77,7 +82,7 @@ exports.decreaseQuantity = async(req, res) => {
         }
 
         // Decrease the quantity
-        cartItem.qty -= qty
+        cartItem.qty -= 1
 
         // Remove the item from the cart if quantity becomes 0
         if (cartItem.qty === 0) {
@@ -112,7 +117,7 @@ exports.increaseQuantity = async(req, res) => {
         }
 
         // Increase the quantity
-        cartItem.qty += qty
+        cartItem.qty += 1
 
         // Save the updated cart item
         await cartItem.save()
